@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebLLM Local Chat</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="chat-app">
+      <header class="chat-header">
+        <h1>Local AI Chat</h1>
+        <p id="statusText" class="status-text">Starting engine...</p>
+      </header>
+
+      <main id="chatMessages" class="chat-messages">
+        <div class="message assistant">
+          <div class="bubble">Hello! I run completely inside your browser. Ask me anything!</div>
+        </div>
+      </main>
+
+      <footer class="chat-footer">
+        <form id="chatForm" class="chat-form">
+          <input
+            id="messageInput"
+            type="text"
+            placeholder="Type your message here..."
+            autocomplete="off"
+            required
+          />
+          <button id="sendButton" type="submit">Send</button>
+        </form>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
