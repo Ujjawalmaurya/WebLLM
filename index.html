@@ -3,27 +3,58 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebLLM Local Chat</title>
+    <title>WebLLM Browser Chat</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <!-- WebGPU missing warning banner -->
+    <div id="webgpuBanner" class="banner-warning" style="display: none;">
+      <div class="banner-content">
+        <strong>WebGPU is not enabled in your browser.</strong>
+        <span>To run models locally, use Google Chrome (v113+), Microsoft Edge, Brave, or Firefox Nightly with hardware acceleration enabled.</span>
+      </div>
+    </div>
+
     <div class="chat-app">
+      <!-- Header -->
       <header class="chat-header">
         <div class="header-top">
-          <h1>Local AI Chat</h1>
-          <button id="clearButton" class="btn-secondary" type="button">Clear Chat</button>
+          <div class="header-title-box">
+            <h1>Local WebLLM</h1>
+            <span id="speedBadge" class="badge badge-speed" style="display: none;">0 tok/s</span>
+          </div>
+          <div class="header-actions">
+            <button id="systemPromptToggle" class="btn-secondary" type="button">Prompt Settings</button>
+            <button id="clearButton" class="btn-secondary" type="button">Clear Chat</button>
+          </div>
         </div>
 
+        <!-- Model selection -->
         <div class="header-controls">
           <label for="modelSelect">Model:</label>
           <select id="modelSelect">
-            <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen 2.5 0.5B (~350 MB - Fast)</option>
-            <option value="SmolLM2-135M-Instruct-q0f16-MLC">SmolLM2 135M (~140 MB - Tiny)</option>
-            <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (~880 MB - Balanced)</option>
-            <option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Llama 3.2 3B (~2 GB - Smart)</option>
+            <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen 2.5 (0.5B) - ~350 MB (Fast & Lightweight)</option>
+            <option value="SmolLM2-135M-Instruct-q0f16-MLC">SmolLM2 (135M) - ~140 MB (Ultra-small test)</option>
+            <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 (1B) - ~880 MB (Recommended)</option>
+            <option value="Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC">Qwen 2.5 Coder (1.5B) - ~1.1 GB (Best for Code)</option>
+            <option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Llama 3.2 (3B) - ~2 GB (Detailed Answers)</option>
           </select>
         </div>
 
+        <!-- System Prompt Drawer -->
+        <div id="systemPromptDrawer" class="system-prompt-drawer" style="display: none;">
+          <label for="systemPromptInput">System Instructions:</label>
+          <textarea
+            id="systemPromptInput"
+            rows="2"
+            placeholder="Tell the model how to act (e.g., You are a friendly coding assistant)..."
+          >You are a helpful and concise AI assistant running locally inside the user's browser.</textarea>
+          <div class="prompt-drawer-actions">
+            <button id="savePromptButton" class="btn-secondary" type="button">Save Instructions</button>
+          </div>
+        </div>
+
+        <!-- Download & Cache Progress -->
         <div id="progressBox" class="progress-box">
           <div class="progress-bar-bg">
             <div id="progressBar" class="progress-bar-fill"></div>
@@ -32,23 +63,30 @@
         </div>
       </header>
 
+      <!-- Chat Messages Scroll Container -->
       <main id="chatMessages" class="chat-messages">
         <div class="message assistant">
-          <div class="bubble">Hello! I run completely inside your browser. Pick a model and ask me anything!</div>
+          <div class="bubble">
+            Hello! I run completely offline inside your browser using WebGPU.
+            <br /><br />
+            Select a model above to begin. The first time you pick a model, your browser downloads and caches its files so future chats load much faster.
+          </div>
         </div>
       </main>
 
+      <!-- Footer Input Area -->
       <footer class="chat-footer">
         <form id="chatForm" class="chat-form">
-          <input
+          <textarea
             id="messageInput"
-            type="text"
-            placeholder="Type your message here..."
-            autocomplete="off"
+            placeholder="Type your message here... (Shift + Enter for new line)"
+            rows="1"
             required
-          />
-          <button id="sendButton" type="submit">Send</button>
-          <button id="stopButton" class="btn-stop" type="button" style="display: none;">Stop</button>
+          ></textarea>
+          <div class="footer-buttons">
+            <button id="sendButton" type="submit">Send</button>
+            <button id="stopButton" class="btn-stop" type="button" style="display: none;">Stop</button>
+          </div>
         </form>
       </footer>
     </div>
