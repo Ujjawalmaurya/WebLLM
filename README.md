@@ -1,15 +1,36 @@
 # Local Browser AI Chat (WebLLM)
 
-A clean web application that runs large language models directly inside your web browser. Everything runs locally on your machine—no servers, no subscriptions, and your chats never leave your device.
+A clean web application that runs Large Language Models locally inside your web browser. Everything runs on your machine using your graphics hardware (WebGPU)—no remote servers, no API keys, and your data never leaves your device.
 
 ---
 
 ## How It Works
 
-This project uses **WebLLM** and your computer graphics hardware (**WebGPU**) to run AI models entirely offline once downloaded:
-1. When you select a model, your browser downloads the model files and saves them to your browser's local cache.
-2. Once downloaded, the model runs inside a background worker so your browser stays smooth and responsive.
-3. Your messages and answers stream in real time word-by-word.
+1. **Pick a Model**: Choose from top-tier open models by Meta, Google, Microsoft, Alibaba, Mistral, Hugging Face, or AllenAI.
+2. **Download & Cache**: The browser downloads the model files on first run and saves them to local storage. Subsequent chats load without re-downloading.
+3. **Background Worker**: Model calculations run inside a separate thread (`worker.js`), so your browser stays smooth and responsive while text is generated.
+4. **Real-Time Streaming**: Tokens stream word-by-word into the chat bubble.
+
+---
+
+## Available Frontier Models (Low Parameter & Fast)
+
+All models are low-parameter variants optimized for smooth in-browser execution:
+
+| Provider | Model | Approx. VRAM / Download | Best For |
+| :--- | :--- | :--- | :--- |
+| **Meta** | Llama 3.2 (1B) | ~880 MB | Balanced everyday conversation (default) |
+| **Meta** | Llama 3.2 (3B) | ~2.2 GB | In-depth answers and higher quality |
+| **Google** | Gemma 3 (1B) | ~710 MB | Lightweight general instruction following |
+| **Google** | Gemma 2 (2B) | ~1.9 GB | High quality reasoning from Google DeepMind |
+| **Alibaba** | Qwen 2.5 (0.5B) | ~350 MB | Ultra-fast responses on any device |
+| **Alibaba** | Qwen 2.5 (1.5B) | ~1.6 GB | Versatile multilingual chat |
+| **Alibaba** | Qwen 2.5 Coder (1.5B) | ~1.6 GB | Coding, debugging, and scripts |
+| **Microsoft** | Phi 3.5 Mini (3.8B) | ~3.6 GB | Advanced logic and analytical tasks |
+| **Mistral AI** | Ministral 3 (3B) | ~2.8 GB | Strong reasoning in a compact size |
+| **Hugging Face** | SmolLM2 (360M) | ~370 MB | Minimal memory footprint |
+| **Hugging Face** | SmolLM2 (1.7B) | ~1.7 GB | Solid small-footprint assistant |
+| **AllenAI** | OLMo 2 (1B) | ~1.7 GB | Fully open data and weights |
 
 ---
 
@@ -20,58 +41,31 @@ This project uses **WebLLM** and your computer graphics hardware (**WebGPU**) to
 npm install
 ```
 
-### 2. Start local server
+### 2. Start local development server
 ```bash
 npm run dev
 ```
 
-Visit the address shown in your terminal (usually `http://localhost:3000`).
+Open `http://localhost:3000` in a WebGPU-enabled browser.
 
 ---
 
 ## Browser Requirements
 
-To run AI models locally in the browser, your browser must support **WebGPU**:
-- **Google Chrome** (version 113 or newer)
-- **Microsoft Edge** (version 113 or newer)
+WebLLM requires **WebGPU** with hardware acceleration:
+- **Google Chrome** (v113+)
+- **Microsoft Edge** (v113+)
 - **Brave Browser**
-- **Firefox Nightly** (with WebGPU enabled in `about:config`)
-
-*Note: Make sure "Hardware Acceleration" is enabled in your browser settings.*
-
----
-
-## Available Models
-
-You can pick different models depending on your machine speed and available memory:
-
-| Model | Download Size | Best For |
-| :--- | :--- | :--- |
-| **SmolLM2 (135M)** | ~140 MB | Fast tests, older computers, low memory |
-| **Qwen 2.5 (0.5B)** | ~350 MB | Quick answers, balanced speed (default) |
-| **Llama 3.2 (1B)** | ~880 MB | High quality everyday chat |
-| **Qwen 2.5 Coder (1.5B)** | ~1.1 GB | Coding questions and scripts |
-| **Llama 3.2 (3B)** | ~2.0 GB | Detailed reasoning and smart answers |
+- **Firefox Nightly** (WebGPU enabled in `about:config`)
 
 ---
 
 ## Features
 
-- **Private & Local**: Zero data leaves your computer.
-- **Real-Time Streaming**: Watch words appear as the model writes them.
-- **Stop Button**: Cancel an answer at any time.
-- **Speed Counter**: See generation speed in tokens per second.
-- **Code Block Formatting**: Clean code snippets with a 1-click Copy button.
-- **System Instructions**: Customise how the model behaves using the Prompt Settings drawer.
-- **Console Test Logs**: Open your browser developer console (`F12` or `Ctrl+Shift+I`) to watch flow logs (`[WebLLM Test]`) as each action runs.
-
----
-
-## Building for Production
-
-To create an optimised bundle for deployment:
-```bash
-npm run build
-```
-
-The output files will be created in the `dist/` directory.
+- **Top Open Providers**: Meta, Google, Microsoft, Alibaba, Mistral, Hugging Face, AllenAI.
+- **Background Worker**: Heavy computations run off the main UI thread.
+- **Stop Generation**: Cancel an in-flight reply at any time.
+- **Live Speed Indicator**: Monitor tokens per second in real time.
+- **Markdown Code Formatting**: Syntax-styled blocks with 1-click copy.
+- **Custom Instructions**: Change the system prompt easily via Prompt Settings.
+- **Console Test Logs**: All key lifecycle events are logged to the browser console (`[WebLLM Test]`) for flow inspection.

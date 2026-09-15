@@ -29,15 +29,36 @@
           </div>
         </div>
 
-        <!-- Model selection -->
+        <!-- Model selection with frontier open providers -->
         <div class="header-controls">
           <label for="modelSelect">Model:</label>
           <select id="modelSelect">
-            <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen 2.5 (0.5B) - ~350 MB (Fast & Lightweight)</option>
-            <option value="SmolLM2-135M-Instruct-q0f16-MLC">SmolLM2 (135M) - ~140 MB (Ultra-small test)</option>
-            <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 (1B) - ~880 MB (Recommended)</option>
-            <option value="Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC">Qwen 2.5 Coder (1.5B) - ~1.1 GB (Best for Code)</option>
-            <option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Llama 3.2 (3B) - ~2 GB (Detailed Answers)</option>
+            <optgroup label="Meta">
+              <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC" selected>Llama 3.2 (1B) - ~880 MB (Fast & Balanced)</option>
+              <option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Llama 3.2 (3B) - ~2.2 GB (High Quality)</option>
+            </optgroup>
+            <optgroup label="Google">
+              <option value="gemma3-1b-it-q4f16_1-MLC">Gemma 3 (1B) - ~710 MB (Lightweight)</option>
+              <option value="gemma-2-2b-it-q4f16_1-MLC">Gemma 2 (2B) - ~1.9 GB (Strong Reasoning)</option>
+            </optgroup>
+            <optgroup label="Alibaba (Qwen)">
+              <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen 2.5 (0.5B) - ~350 MB (Ultra-Fast)</option>
+              <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen 2.5 (1.5B) - ~1.6 GB (Conversational)</option>
+              <option value="Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC">Qwen 2.5 Coder (1.5B) - ~1.6 GB (Coding)</option>
+            </optgroup>
+            <optgroup label="Microsoft">
+              <option value="Phi-3.5-mini-instruct-q4f16_1-MLC">Phi 3.5 Mini (3.8B) - ~3.6 GB (Reasoning)</option>
+            </optgroup>
+            <optgroup label="Mistral AI">
+              <option value="Ministral-3-3B-Instruct-2512-BF16-q4f16_1-MLC">Ministral 3 (3B) - ~2.8 GB (Compact)</option>
+            </optgroup>
+            <optgroup label="Hugging Face">
+              <option value="SmolLM2-360M-Instruct-q4f16_1-MLC">SmolLM2 (360M) - ~370 MB (Tiny Footprint)</option>
+              <option value="SmolLM2-1.7B-Instruct-q4f16_1-MLC">SmolLM2 (1.7B) - ~1.7 GB (Balanced)</option>
+            </optgroup>
+            <optgroup label="AllenAI">
+              <option value="OLMo-2-0425-1B-Instruct-q4f16_1-MLC">OLMo 2 (1B) - ~1.7 GB (Open Weights)</option>
+            </optgroup>
           </select>
         </div>
 
@@ -69,7 +90,8 @@
           <div class="bubble">
             Hello! I run completely offline inside your browser using WebGPU.
             <br /><br />
-            Select a model above to begin. The first time you pick a model, your browser downloads and caches its files so future chats load much faster.
+            Select a model above from Meta, Google, Microsoft, Alibaba, Mistral, Hugging Face, or AllenAI.
+            The first time you pick a model, its files are downloaded and cached locally on your device.
           </div>
         </div>
       </main>

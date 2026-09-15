@@ -144,6 +144,20 @@ body {
   cursor: pointer;
 }
 
+.header-controls optgroup {
+  background-color: var(--bg-card);
+  color: #a5b4fc;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.header-controls option {
+  background-color: var(--bg-input);
+  color: var(--text-main);
+  font-weight: 400;
+  padding: 4px 8px;
+}
+
 .header-controls select:focus {
   border-color: var(--accent-blue);
 }
