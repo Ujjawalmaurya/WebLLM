@@ -3,115 +3,104 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebLLM Browser Chat</title>
+    <title>WebLLM — Local Browser Chat</title>
+    <meta name="description" content="Run large language models locally in your browser using WebGPU. No server, no API keys, fully offline." />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <!-- WebGPU missing warning banner -->
-    <div id="webgpuBanner" class="banner-warning" style="display: none;">
-      <div class="banner-content">
-        <strong>WebGPU is not enabled in your browser.</strong>
-        <span>To run models locally, use Google Chrome (v113+), Microsoft Edge, Brave, or Firefox Nightly with hardware acceleration enabled.</span>
-      </div>
-    </div>
-
     <div class="chat-app">
-      <!-- Header -->
+      <!-- Header Band -->
       <header class="chat-header">
         <div class="header-top">
-          <div class="header-title-box">
-            <h1>Local WebLLM</h1>
-            <span id="speedBadge" class="badge badge-speed" style="display: none;">0 tok/s</span>
+          <div class="header-brand">
+            <h1>WebLLM</h1>
+            <span id="statusChip" class="status-chip">
+              <span class="dot"></span>
+              <span id="statusChipText">Initialising</span>
+            </span>
+            <span id="speedBadge" class="speed-badge" style="display: none;">0 tok/s</span>
           </div>
           <div class="header-actions">
-            <button id="systemPromptToggle" class="btn-secondary" type="button">Prompt Settings</button>
-            <button id="clearButton" class="btn-secondary" type="button">Clear Chat</button>
+            <button id="systemPromptToggle" class="icon-btn" type="button" title="System prompt">
+              <!-- Gear icon -->
+              <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <button id="clearButton" class="icon-btn" type="button" title="Clear chat">
+              <!-- Eraser icon -->
+              <svg viewBox="0 0 24 24"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+            </button>
+            <button id="themeToggle" class="icon-btn" type="button" title="Toggle theme">
+              <!-- Sun icon (light mode default) -->
+              <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            </button>
           </div>
         </div>
-
-        <!-- Model selection with frontier open providers -->
-        <div class="header-controls">
-          <label for="modelSelect">Model:</label>
-          <select id="modelSelect">
-            <optgroup label="Meta">
-              <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC" selected>Llama 3.2 (1B) - ~880 MB (Fast & Balanced)</option>
-              <option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Llama 3.2 (3B) - ~2.2 GB (High Quality)</option>
-            </optgroup>
-            <optgroup label="Google">
-              <option value="gemma3-1b-it-q4f16_1-MLC">Gemma 3 (1B) - ~710 MB (Lightweight)</option>
-              <option value="gemma-2-2b-it-q4f16_1-MLC">Gemma 2 (2B) - ~1.9 GB (Strong Reasoning)</option>
-            </optgroup>
-            <optgroup label="Alibaba (Qwen)">
-              <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen 2.5 (0.5B) - ~350 MB (Ultra-Fast)</option>
-              <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen 2.5 (1.5B) - ~1.6 GB (Conversational)</option>
-              <option value="Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC">Qwen 2.5 Coder (1.5B) - ~1.6 GB (Coding)</option>
-            </optgroup>
-            <optgroup label="Microsoft">
-              <option value="Phi-3.5-mini-instruct-q4f16_1-MLC">Phi 3.5 Mini (3.8B) - ~3.6 GB (Reasoning)</option>
-            </optgroup>
-            <optgroup label="Mistral AI">
-              <option value="Ministral-3-3B-Instruct-2512-BF16-q4f16_1-MLC">Ministral 3 (3B) - ~2.8 GB (Compact)</option>
-            </optgroup>
-            <optgroup label="Hugging Face">
-              <option value="SmolLM2-360M-Instruct-q4f16_1-MLC">SmolLM2 (360M) - ~370 MB (Tiny Footprint)</option>
-              <option value="SmolLM2-1.7B-Instruct-q4f16_1-MLC">SmolLM2 (1.7B) - ~1.7 GB (Balanced)</option>
-            </optgroup>
-            <optgroup label="AllenAI">
-              <option value="OLMo-2-0425-1B-Instruct-q4f16_1-MLC">OLMo 2 (1B) - ~1.7 GB (Open Weights)</option>
-            </optgroup>
-          </select>
-        </div>
-
-        <!-- System Prompt Drawer -->
-        <div id="systemPromptDrawer" class="system-prompt-drawer" style="display: none;">
-          <label for="systemPromptInput">System Instructions:</label>
-          <textarea
-            id="systemPromptInput"
-            rows="2"
-            placeholder="Tell the model how to act (e.g., You are a friendly coding assistant)..."
-          >You are a helpful and concise AI assistant running locally inside the user's browser.</textarea>
-          <div class="prompt-drawer-actions">
-            <button id="savePromptButton" class="btn-secondary" type="button">Save Instructions</button>
-          </div>
-        </div>
-
-        <!-- Download & Cache Progress -->
-        <div id="progressBox" class="progress-box">
-          <div class="progress-bar-bg">
-            <div id="progressBar" class="progress-bar-fill"></div>
-          </div>
-          <p id="statusText" class="status-text">Initialising...</p>
+        <!-- Progress bar -->
+        <div class="progress-bar-track">
+          <div id="progressBar" class="progress-bar-fill"></div>
         </div>
       </header>
 
-      <!-- Chat Messages Scroll Container -->
+      <p id="statusText" class="status-text">Initialising...</p>
+
+      <!-- Chat Messages -->
       <main id="chatMessages" class="chat-messages">
-        <div class="message assistant">
-          <div class="bubble">
-            Hello! I run completely offline inside your browser using WebGPU.
-            <br /><br />
-            Select a model above from Meta, Google, Microsoft, Alibaba, Mistral, Hugging Face, or AllenAI.
-            The first time you pick a model, its files are downloaded and cached locally on your device.
+        <!-- Welcome card (shown when empty) -->
+        <div id="welcomeCard" class="welcome-card">
+          <h2>What's on your mind?</h2>
+          <p class="welcome-sub">Pick a model below and start chatting. Everything runs locally in your browser — no servers, no API keys.</p>
+          <p id="welcomeStatus" class="welcome-status"></p>
+          <div class="suggestion-chips">
+            <button class="suggestion-chip" type="button" data-prompt="Explain recursion like I'm five">Explain recursion</button>
+            <button class="suggestion-chip" type="button" data-prompt="Write a short haiku about coding">Write a haiku</button>
+            <button class="suggestion-chip" type="button" data-prompt="What are the pros and cons of TypeScript?">TypeScript pros & cons</button>
           </div>
         </div>
       </main>
 
-      <!-- Footer Input Area -->
+      <!-- Model Pill Bar -->
+      <nav id="modelBar" class="model-bar"></nav>
+      <div id="modelVariants" class="model-variants"></div>
+
+      <!-- Footer Input -->
       <footer class="chat-footer">
         <form id="chatForm" class="chat-form">
           <textarea
             id="messageInput"
-            placeholder="Type your message here... (Shift + Enter for new line)"
+            placeholder="Type your message... (Shift+Enter for new line)"
             rows="1"
             required
           ></textarea>
-          <div class="footer-buttons">
-            <button id="sendButton" type="submit">Send</button>
-            <button id="stopButton" class="btn-stop" type="button" style="display: none;">Stop</button>
-          </div>
+          <button id="sendButton" class="btn-send" type="submit" title="Send message">
+            <!-- Arrow up icon -->
+            <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          </button>
+          <button id="stopButton" class="btn-stop" type="button" title="Stop generation" style="display: none;">
+            <!-- Square stop icon -->
+            <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+          </button>
         </form>
       </footer>
     </div>
+
+    <!-- System Prompt Dialog -->
+    <dialog id="systemPromptDialog" class="system-dialog">
+      <div class="dialog-header">
+        <h3>System prompt</h3>
+        <button id="dialogClose" class="dialog-close" type="button">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <label for="systemPromptInput">Tell the model how to behave:</label>
+        <textarea
+          id="systemPromptInput"
+          rows="3"
+          placeholder="e.g. You are a friendly coding assistant..."
+        >You are a helpful and concise AI assistant running locally inside the user's browser.</textarea>
+      </div>
+      <div class="dialog-footer">
+        <button id="savePromptButton" class="btn-save" type="button">Save</button>
+      </div>
+    </dialog>
 
     <script type="module" src="/src/main.js"></script>
   </body>
