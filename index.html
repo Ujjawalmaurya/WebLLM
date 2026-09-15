@@ -9,13 +9,32 @@
   <body>
     <div class="chat-app">
       <header class="chat-header">
-        <h1>Local AI Chat</h1>
-        <p id="statusText" class="status-text">Starting engine...</p>
+        <div class="header-top">
+          <h1>Local AI Chat</h1>
+          <button id="clearButton" class="btn-secondary" type="button">Clear Chat</button>
+        </div>
+
+        <div class="header-controls">
+          <label for="modelSelect">Model:</label>
+          <select id="modelSelect">
+            <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">Qwen 2.5 0.5B (~350 MB - Fast)</option>
+            <option value="SmolLM2-135M-Instruct-q0f16-MLC">SmolLM2 135M (~140 MB - Tiny)</option>
+            <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (~880 MB - Balanced)</option>
+            <option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Llama 3.2 3B (~2 GB - Smart)</option>
+          </select>
+        </div>
+
+        <div id="progressBox" class="progress-box">
+          <div class="progress-bar-bg">
+            <div id="progressBar" class="progress-bar-fill"></div>
+          </div>
+          <p id="statusText" class="status-text">Initialising...</p>
+        </div>
       </header>
 
       <main id="chatMessages" class="chat-messages">
         <div class="message assistant">
-          <div class="bubble">Hello! I run completely inside your browser. Ask me anything!</div>
+          <div class="bubble">Hello! I run completely inside your browser. Pick a model and ask me anything!</div>
         </div>
       </main>
 
@@ -29,6 +48,7 @@
             required
           />
           <button id="sendButton" type="submit">Send</button>
+          <button id="stopButton" class="btn-stop" type="button" style="display: none;">Stop</button>
         </form>
       </footer>
     </div>

@@ -1,5 +1,5 @@
 //! ==========================================================================
-//! Local WebLLM Chat - Web Worker & Streaming Setup
+//! Local WebLLM Chat - Model Selector, Progress Bar
 //! ==========================================================================
 
 import { CreateWebWorkerMLCEngine } from '@mlc-ai/web-llm';
