@@ -1,5 +1,5 @@
 //! ==========================================================================
-//! Local WebLLM Chat - Phase 4: Full UI, Code Blocks, and Test Prints
+//! Local WebLLM Chat
 //! ==========================================================================
 
 import { CreateWebWorkerMLCEngine } from '@mlc-ai/web-llm';
@@ -80,6 +80,9 @@ async function initEngine(modelId) {
     progressBar.style.width = '100%';
     statusText.textContent = 'Model ready to chat.';
     console.log('[WebLLM Test] Engine is now ready for user queries.');
+
+    //* Auto-focus input when engine is ready
+    messageInput.focus();
   } catch (error) {
     statusText.textContent = 'Failed to load model: ' + error.message;
     modelSelect.disabled = false;
@@ -92,7 +95,7 @@ function handleProgress(report) {
   const percentage = Math.round((report.progress || 0) * 100);
   progressBar.style.width = `${percentage}%`;
   statusText.textContent = report.text || `Loading: ${percentage}%`;
-  
+
   if (percentage === 100 || percentage % 25 === 0) {
     console.log(`[WebLLM Test] Download progress: ${percentage}% - ${report.text}`);
   }
@@ -147,9 +150,17 @@ function createMessageBubble(role, initialText = '') {
 
   messageDiv.appendChild(bubbleDiv);
   chatMessages.appendChild(messageDiv);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  scrollChatToBottom();
 
   return bubbleDiv;
+}
+
+//! Smooth Scroll Management
+function scrollChatToBottom(force = false) {
+  const isNearBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 120;
+  if (force || isNearBottom) {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
 }
 
 //! Attach Copy Handler for Code Snippets
@@ -171,6 +182,14 @@ chatMessages.addEventListener('click', (event) => {
 modelSelect.addEventListener('change', () => {
   const newModel = modelSelect.value;
   console.log(`[WebLLM Test] Model selection changed to: ${newModel}`);
+
+  //* Reset chat history on model change for clean slate
+  messageList = [
+    { role: 'system', content: systemPrompt }
+  ];
+  chatMessages.innerHTML = '';
+  createMessageBubble('assistant', `Switched to ${newModel}. Downloading or loading cached model files...`);
+
   initEngine(newModel);
 });
 
@@ -202,17 +221,27 @@ clearButton.addEventListener('click', () => {
   chatMessages.innerHTML = '';
   speedBadge.style.display = 'none';
   createMessageBubble('assistant', 'Chat history cleared. What would you like to discuss?');
+  messageInput.focus();
 });
 
 //! Stop Current Generation
-stopButton.addEventListener('click', async () => {
+async function stopGeneration() {
   if (engine && isGenerating) {
-    console.log('[WebLLM Test] Stop button clicked. Calling engine.interruptGenerate()...');
+    console.log('[WebLLM Test] Stopping generation via engine.interruptGenerate()...');
     statusText.textContent = 'Stopping response...';
     await engine.interruptGenerate();
     isGenerating = false;
     setGeneratingState(false);
     console.log('[WebLLM Test] Generation successfully stopped.');
+  }
+}
+
+stopButton.addEventListener('click', stopGeneration);
+
+//! Global Escape Key to Stop Generation
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && isGenerating) {
+    stopGeneration();
   }
 });
 
@@ -229,6 +258,7 @@ function setGeneratingState(generating) {
     stopButton.style.display = 'none';
     modelSelect.disabled = false;
     sendButton.disabled = !isEngineReady;
+    messageInput.focus();
   }
 }
 
@@ -269,7 +299,7 @@ chatForm.addEventListener('submit', async (event) => {
   statusText.textContent = 'Thinking...';
 
   //* Create bubble for streaming assistant response
-  const assistantBubble = createMessageBubble('assistant', '');
+  const assistantBubble = createMessageBubble('assistant', 'Thinking...');
   let fullResponse = '';
   let tokenCount = 0;
   const startTime = performance.now();
@@ -299,7 +329,7 @@ chatForm.addEventListener('submit', async (event) => {
       }
 
       assistantBubble.innerHTML = formatMessageContent(fullResponse);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      scrollChatToBottom();
     }
 
     if (fullResponse.trim()) {
