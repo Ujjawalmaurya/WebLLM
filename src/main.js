@@ -1,8 +1,8 @@
 //! ==========================================================================
-//! Local WebLLM Chat - Main Thread Setup
+//! Local WebLLM Chat - Web Worker & Streaming Setup
 //! ==========================================================================
 
-import { CreateMLCEngine } from '@mlc-ai/web-llm';
+import { CreateWebWorkerMLCEngine } from '@mlc-ai/web-llm';
 
 //* Model selection
 const selectedModel = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
@@ -22,14 +22,21 @@ const messageList = [
   { role: 'system', content: 'You are a helpful and concise AI assistant.' }
 ];
 
-//! Initialise Engine
+//! Initialise Background Worker & Engine
 async function initEngine() {
   try {
-    statusText.textContent = 'Downloading and loading model files...';
+    statusText.textContent = 'Starting background worker...';
     sendButton.disabled = true;
 
-    //? Load engine directly on main thread
-    engine = await CreateMLCEngine(selectedModel, {
+    //? Spawn Web Worker so UI stays responsive during generation
+    const worker = new Worker(new URL('./worker.js', import.meta.url), {
+      type: 'module'
+    });
+
+    statusText.textContent = 'Downloading model files...';
+
+    //? Create engine attached to the worker
+    engine = await CreateWebWorkerMLCEngine(worker, selectedModel, {
       initProgressCallback: (report) => {
         statusText.textContent = report.text;
       }
@@ -39,23 +46,25 @@ async function initEngine() {
     statusText.textContent = 'Model loaded and ready.';
     sendButton.disabled = false;
   } catch (error) {
-    statusText.textContent = 'Error loading model: ' + error.message;
+    statusText.textContent = 'Failed to load model: ' + error.message;
     console.error(error);
   }
 }
 
 //! Add Message Bubble to UI
-function appendMessage(role, text) {
+function createMessageBubble(role, initialText = '') {
   const messageDiv = document.createElement('div');
   messageDiv.className = `message ${role}`;
 
   const bubbleDiv = document.createElement('div');
   bubbleDiv.className = 'bubble';
-  bubbleDiv.textContent = text;
+  bubbleDiv.textContent = initialText;
 
   messageDiv.appendChild(bubbleDiv);
   chatMessages.appendChild(messageDiv);
   chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  return bubbleDiv;
 }
 
 //! Handle Send Form Submit
@@ -67,25 +76,34 @@ chatForm.addEventListener('submit', async (event) => {
 
   //* Clear input and show user message
   messageInput.value = '';
-  appendMessage('user', userText);
+  createMessageBubble('user', userText);
   messageList.push({ role: 'user', content: userText });
 
   sendButton.disabled = true;
-  statusText.textContent = 'Thinking...';
+  statusText.textContent = 'Generating response...';
+
+  //* Create bubble for streaming assistant response
+  const assistantBubble = createMessageBubble('assistant', '');
+  let fullResponse = '';
 
   try {
-    //* Non-streaming completion
-    const reply = await engine.chat.completions.create({
-      messages: messageList
+    //? Stream tokens as they arrive
+    const completionStream = await engine.chat.completions.create({
+      messages: messageList,
+      stream: true
     });
 
-    const assistantText = reply.choices[0].message.content || '';
-    appendMessage('assistant', assistantText);
-    messageList.push({ role: 'assistant', content: assistantText });
+    for await (const chunk of completionStream) {
+      const token = chunk.choices[0]?.delta?.content || '';
+      fullResponse += token;
+      assistantBubble.textContent = fullResponse;
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
+    messageList.push({ role: 'assistant', content: fullResponse });
     statusText.textContent = 'Ready';
   } catch (error) {
-    appendMessage('assistant', 'Sorry, an error occurred: ' + error.message);
+    assistantBubble.textContent = 'Error: ' + error.message;
     statusText.textContent = 'Error during generation';
   } finally {
     sendButton.disabled = false;
