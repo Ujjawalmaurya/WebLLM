@@ -7,98 +7,133 @@
     <meta name="description" content="Run large language models locally in your browser using WebGPU. No server, no API keys, fully offline." />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
-  <body>
-    <div class="chat-app">
-      <!-- Header Band -->
-      <header class="chat-header">
-        <div class="header-top">
-          <div class="header-brand">
-            <h1>WebLLM</h1>
-            <span id="statusChip" class="status-chip">
-              <span class="dot"></span>
+  <body class="bg-paper text-ink flex flex-col justify-center items-center min-h-screen p-0 sm:p-[18px_14px]">
+    <div class="w-full sm:max-w-[800px] h-screen sm:h-[92vh] flex flex-col bg-paper border-0 sm:border-2 sm:border-ink sm:rounded-xl overflow-hidden sm:shadow-brutal-lg relative">
+      <!-- Header Band (Accent 1: Warm Amber) -->
+      <header class="bg-accent-amber border-b-3 border-ink flex flex-col shrink-0">
+        <div class="flex justify-between items-center px-4 py-2.5 sm:px-5 sm:py-3 gap-2.5">
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-lg font-bold text-ink tracking-tight font-body">WebLLM</h1>
+            <!-- Status Chip (Teal dot) -->
+            <span id="statusChip" class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full border-[1.5px] border-ink bg-paper text-ink whitespace-nowrap">
+              <span class="w-1.5 h-1.5 rounded-full bg-accent-teal shrink-0"></span>
               <span id="statusChipText">Initialising</span>
             </span>
-            <span id="speedBadge" class="speed-badge" style="display: none;">0 tok/s</span>
+            <span id="speedBadge" class="hidden font-mono text-[11px] font-medium px-2 py-0.5 rounded-full bg-paper border-[1.5px] border-ink text-accent-teal whitespace-nowrap">0 tok/s</span>
           </div>
-          <div class="header-actions">
-            <button id="systemPromptToggle" class="icon-btn" type="button" title="System prompt">
-              <!-- Gear icon -->
-              <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <div class="flex items-center gap-1.5">
+            <!-- Model Library button -->
+            <button id="modelLibraryToggle" class="w-8 h-8 sm:w-8.5 sm:h-8.5 inline-flex items-center justify-center bg-paper border-[1.5px] border-ink rounded-lg cursor-pointer text-ink hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 active:shadow-none active:translate-x-0.25 active:translate-y-0.25 transition-all p-0 shrink-0" type="button" title="Model Library & Downloads">
+              <svg class="w-4 h-4 stroke-current stroke-2 fill-none stroke-round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </button>
-            <button id="clearButton" class="icon-btn" type="button" title="Clear chat">
-              <!-- Eraser icon -->
-              <svg viewBox="0 0 24 24"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+            <button id="systemPromptToggle" class="w-8 h-8 sm:w-8.5 sm:h-8.5 inline-flex items-center justify-center bg-paper border-[1.5px] border-ink rounded-lg cursor-pointer text-ink hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 active:shadow-none active:translate-x-0.25 active:translate-y-0.25 transition-all p-0 shrink-0" type="button" title="System prompt">
+              <svg class="w-4 h-4 stroke-current stroke-2 fill-none stroke-round" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
-            <button id="themeToggle" class="icon-btn" type="button" title="Toggle theme">
-              <!-- Sun icon (light mode default) -->
-              <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <button id="clearButton" class="w-8 h-8 sm:w-8.5 sm:h-8.5 inline-flex items-center justify-center bg-paper border-[1.5px] border-ink rounded-lg cursor-pointer text-ink hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 active:shadow-none active:translate-x-0.25 active:translate-y-0.25 transition-all p-0 shrink-0" type="button" title="Clear chat">
+              <svg class="w-4 h-4 stroke-current stroke-2 fill-none stroke-round" viewBox="0 0 24 24"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+            </button>
+            <button id="themeToggle" class="w-8 h-8 sm:w-8.5 sm:h-8.5 inline-flex items-center justify-center bg-paper border-[1.5px] border-ink rounded-lg cursor-pointer text-ink hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 active:shadow-none active:translate-x-0.25 active:translate-y-0.25 transition-all p-0 shrink-0" type="button" title="Toggle theme">
+              <svg id="themeIcon" class="w-4 h-4 stroke-current stroke-2 fill-none stroke-round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
             </button>
           </div>
         </div>
-        <!-- Progress bar -->
-        <div class="progress-bar-track">
-          <div id="progressBar" class="progress-bar-fill"></div>
+        <!-- Progress bar track -->
+        <div class="w-full h-1.5 bg-paper-alt overflow-hidden shrink-0">
+          <div id="progressBar" class="w-0 h-full bg-ink transition-all duration-300"></div>
         </div>
       </header>
 
-      <p id="statusText" class="status-text">Initialising...</p>
+      <!-- Error Retry Banner -->
+      <div id="errorRetryBanner" class="hidden items-center justify-between gap-3 px-4.5 py-2 bg-paper-alt border-b-2 border-ink text-xs text-ink shrink-0">
+        <div class="flex items-center gap-2 min-w-0 overflow-hidden">
+          <span class="text-[10px] font-bold uppercase tracking-wider bg-danger text-white px-1.5 py-0.5 rounded border border-ink shrink-0">Failed</span>
+          <span id="bannerErrorText" class="truncate font-mono text-xs">Download failed.</span>
+        </div>
+        <button id="bannerRetryBtn" class="font-body text-xs font-semibold px-3 py-1 bg-accent-amber text-ink border-[1.5px] border-ink rounded-full shadow-brutal-sm cursor-pointer shrink-0 hover:-translate-x-0.25 hover:-translate-y-0.25 active:translate-x-0.25 active:translate-y-0.25 active:shadow-none transition-all" type="button">Retry</button>
+      </div>
+
+      <p id="statusText" class="text-xs text-ink-muted px-5 py-1.5 truncate shrink-0">Initialising...</p>
 
       <!-- Chat Messages -->
-      <main id="chatMessages" class="chat-messages">
-        <!-- Welcome card (shown when empty) -->
-        <div id="welcomeCard" class="welcome-card">
-          <h2>What's on your mind?</h2>
-          <p class="welcome-sub">Pick a model below and start chatting. Everything runs locally in your browser — no servers, no API keys.</p>
-          <p id="welcomeStatus" class="welcome-status"></p>
-          <div class="suggestion-chips">
-            <button class="suggestion-chip" type="button" data-prompt="Explain recursion like I'm five">Explain recursion</button>
-            <button class="suggestion-chip" type="button" data-prompt="Write a short haiku about coding">Write a haiku</button>
-            <button class="suggestion-chip" type="button" data-prompt="What are the pros and cons of TypeScript?">TypeScript pros & cons</button>
+      <main id="chatMessages" class="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 flex flex-col gap-3.5 scroll-smooth custom-scrollbar">
+        <!-- Welcome card -->
+        <div id="welcomeCard" class="flex flex-col items-center justify-center text-center p-8 sm:p-12 flex-1 gap-3">
+          <h2 class="font-hand text-3xl sm:text-4xl font-bold text-ink tracking-wide">What's on your mind?</h2>
+          <p class="text-sm text-ink-muted max-w-[380px] leading-relaxed">Pick a model below and start chatting. Everything runs locally in your browser — no servers, no API keys.</p>
+          <p id="welcomeStatus" class="font-mono text-xs text-ink-muted mt-1"></p>
+          <div class="flex flex-wrap gap-2 justify-center mt-4">
+            <button class="suggestion-chip font-body text-xs sm:text-sm px-4 py-2 border-[1.5px] border-ink rounded-full bg-paper text-ink cursor-pointer hover:bg-accent-amber hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 active:shadow-none active:translate-x-0.25 active:translate-y-0.25 transition-all" type="button" data-prompt="Explain recursion like I'm five">Explain recursion</button>
+            <button class="suggestion-chip font-body text-xs sm:text-sm px-4 py-2 border-[1.5px] border-ink rounded-full bg-paper text-ink cursor-pointer hover:bg-accent-indigo hover:text-white hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 active:shadow-none active:translate-x-0.25 active:translate-y-0.25 transition-all" type="button" data-prompt="Write a short haiku about coding">Write a haiku</button>
+            <button class="suggestion-chip font-body text-xs sm:text-sm px-4 py-2 border-[1.5px] border-ink rounded-full bg-paper text-ink cursor-pointer hover:bg-accent-teal hover:text-white hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 active:shadow-none active:translate-x-0.25 active:translate-y-0.25 transition-all" type="button" data-prompt="What are the pros and cons of TypeScript?">TypeScript pros & cons</button>
           </div>
         </div>
       </main>
 
       <!-- Model Pill Bar -->
-      <nav id="modelBar" class="model-bar"></nav>
-      <div id="modelVariants" class="model-variants"></div>
+      <nav id="modelBar" class="flex items-center gap-2 px-4.5 py-2.5 border-t-[1.5px] border-ink overflow-x-auto shrink-0 scrollbar-none"></nav>
+      <div id="modelVariants" class="hidden flex-wrap gap-1.5 px-4.5 py-2 border-t border-dashed border-ink-muted shrink-0"></div>
 
       <!-- Footer Input -->
-      <footer class="chat-footer">
-        <form id="chatForm" class="chat-form">
+      <footer class="p-3 sm:p-4 border-t-2 border-ink bg-paper shrink-0">
+        <form id="chatForm" class="flex items-end gap-2.5">
           <textarea
             id="messageInput"
             placeholder="Type your message... (Shift+Enter for new line)"
             rows="1"
             required
+            class="flex-1 px-4 py-2.5 bg-paper border-2 border-ink rounded-xl text-ink font-body text-sm resize-none max-h-35 leading-normal outline-none focus:border-accent-teal focus:ring-1 focus:ring-accent-teal transition-all"
           ></textarea>
-          <button id="sendButton" class="btn-send" type="submit" title="Send message">
-            <!-- Arrow up icon -->
-            <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          <!-- Accent 2: Crisp Teal send button -->
+          <button id="sendButton" class="w-10.5 h-10.5 rounded-full border-2 border-ink bg-accent-teal hover:bg-accent-teal-hover text-white inline-flex items-center justify-center cursor-pointer p-0 shrink-0 hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 active:shadow-none active:translate-x-0.25 active:translate-y-0.25 disabled:opacity-45 disabled:cursor-not-allowed transition-all" type="submit" title="Send message">
+            <svg class="w-4.5 h-4.5 fill-white" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
           </button>
-          <button id="stopButton" class="btn-stop" type="button" title="Stop generation" style="display: none;">
-            <!-- Square stop icon -->
-            <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+          <button id="stopButton" class="hidden w-10.5 h-10.5 rounded-full border-2 border-ink bg-danger hover:bg-danger-hover text-white items-center justify-center cursor-pointer p-0 shrink-0 hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 active:shadow-none active:translate-x-0.25 active:translate-y-0.25 transition-all" type="button" title="Stop generation">
+            <svg class="w-3.5 h-3.5 fill-white" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
           </button>
         </form>
       </footer>
     </div>
 
-    <!-- System Prompt Dialog -->
-    <dialog id="systemPromptDialog" class="system-dialog">
-      <div class="dialog-header">
-        <h3>System prompt</h3>
-        <button id="dialogClose" class="dialog-close" type="button">&times;</button>
+    <!-- System Prompt Dialog (Amber Header) -->
+    <dialog id="systemPromptDialog" class="fixed m-auto border-2 border-ink rounded-xl shadow-brutal-lg bg-paper text-ink p-0 w-[90%] max-w-120 overflow-hidden">
+      <div class="flex justify-between items-center px-4.5 py-3 bg-accent-amber border-b-2 border-ink">
+        <h3 class="font-hand text-xl font-bold text-ink">System prompt</h3>
+        <button id="dialogClose" class="w-7 h-7 inline-flex items-center justify-center bg-paper border-[1.5px] border-ink rounded-full cursor-pointer text-ink font-bold text-base hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 transition-all p-0" type="button">&times;</button>
       </div>
-      <div class="dialog-body">
-        <label for="systemPromptInput">Tell the model how to behave:</label>
+      <div class="p-4.5 flex flex-col gap-3">
+        <label for="systemPromptInput" class="text-xs font-medium text-ink-muted">Tell the model how to behave:</label>
         <textarea
           id="systemPromptInput"
           rows="3"
           placeholder="e.g. You are a friendly coding assistant..."
+          class="w-full min-h-20 p-3 bg-paper-alt border-[1.5px] border-ink rounded-lg text-ink font-body text-sm leading-relaxed resize-y outline-none focus:border-accent-teal transition-colors"
         >You are a helpful and concise AI assistant running locally inside the user's browser.</textarea>
       </div>
-      <div class="dialog-footer">
-        <button id="savePromptButton" class="btn-save" type="button">Save</button>
+      <div class="flex justify-end px-4.5 pb-4">
+        <button id="savePromptButton" class="font-body text-sm font-semibold px-5 py-2 border-2 border-ink rounded-full bg-accent-teal hover:bg-accent-teal-hover text-white cursor-pointer hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 active:shadow-none active:translate-x-0.25 active:translate-y-0.25 transition-all" type="button">Save</button>
+      </div>
+    </dialog>
+
+    <!-- Model Library Dialog (Accent 3: Electric Indigo Header) -->
+    <dialog id="modelLibraryDialog" class="fixed m-auto border-2 border-ink rounded-xl shadow-brutal-lg bg-paper text-ink p-0 w-[92%] max-w-170 h-[85vh] max-h-[85vh] overflow-hidden flex flex-col">
+      <div class="flex justify-between items-center px-4.5 py-3 bg-accent-indigo text-white border-b-2 border-ink shrink-0">
+        <div class="flex items-center gap-2.5">
+          <h3 class="font-body text-lg font-bold text-white tracking-tight">Model Library</h3>
+          <span id="downloadedCountBadge" class="font-mono text-[11px] font-semibold px-2 py-0.5 rounded-full bg-paper border-[1.5px] border-ink text-accent-indigo">0 downloaded</span>
+        </div>
+        <button id="libraryDialogClose" class="w-7 h-7 inline-flex items-center justify-center bg-paper border-[1.5px] border-ink rounded-full cursor-pointer text-ink font-bold text-base hover:shadow-brutal-sm hover:-translate-x-0.25 hover:-translate-y-0.25 transition-all p-0" type="button">&times;</button>
+      </div>
+      <div class="px-4.5 py-2.5 text-xs text-ink-soft bg-paper border-b border-dashed border-ink-muted shrink-0">
+        Download models directly to browser cache. Models run 100% offline via WebGPU.
+      </div>
+      <div class="px-4.5 py-2 bg-paper-alt border-b-[1.5px] border-ink flex justify-between items-center gap-2.5 shrink-0">
+        <div class="flex gap-1.5">
+          <button id="tabAllModels" class="tab-btn font-body text-xs font-semibold px-3 py-1 border-[1.5px] border-ink rounded-full bg-accent-indigo text-white cursor-pointer transition-all" type="button">All Models</button>
+          <button id="tabDownloadedModels" class="tab-btn font-body text-xs font-semibold px-3 py-1 border-[1.5px] border-ink rounded-full bg-paper text-ink cursor-pointer hover:bg-paper-alt transition-all" type="button">Downloaded</button>
+        </div>
+      </div>
+      <div id="modelCardGrid" class="p-4 overflow-y-auto min-h-0 flex-1 flex flex-col gap-2.5 custom-scrollbar">
+        <!-- Generated by JS -->
       </div>
     </dialog>
 

@@ -1,901 +1,129 @@
 /* ==========================================================================
-   WebLLM Notebook Chat — Design System
+   WebLLM Notebook Chat — Design
    ========================================================================== */
 
-/* --- Fonts --- */
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 
-/* --- Design Tokens --- */
-:root {
-  --paper: #FFFBF0;
-  --paper-alt: #F5F0E3;
-  --ink: #1A1A2E;
-  --ink-soft: #3D3D56;
-  --ink-muted: #6B7280;
-  --yellow: #FFD43B;
-  --yellow-hover: #FBC02D;
-  --teal: #2EC4B6;
-  --teal-hover: #25A99D;
-  --danger: #E63946;
-  --danger-hover: #C62828;
-  --code-bg: #0F0F1A;
-  --code-text: #E2E8F0;
-  --border-w: 2px;
-  --border-w-thick: 3px;
-  --shadow-heavy: 6px 6px 0 var(--ink);
-  --shadow-medium: 3px 3px 0 var(--ink);
-  --shadow-light: 2px 2px 0 var(--ink);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-pill: 20px;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-paper: #FFFBF0;
+  --color-paper-alt: #F5F0E3;
+  --color-ink: #1A1A2E;
+  --color-ink-soft: #3D3D56;
+  --color-ink-muted: #6B7280;
+
+  /* 3 Main Accents */
+  --color-accent-amber: #FFD43B;
+  --color-accent-amber-hover: #FBC02D;
+  --color-accent-teal: #2EC4B6;
+  --color-accent-teal-hover: #25A99D;
+  --color-accent-indigo: #6366F1;
+  --color-accent-indigo-hover: #4F46E5;
+
+  --color-danger: #E63946;
+  --color-danger-hover: #C62828;
+  --color-code-bg: #0F0F1A;
+  --color-code-text: #E2E8F0;
+
   --font-body: 'Space Grotesk', system-ui, sans-serif;
   --font-hand: 'Caveat', cursive;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  --grid-color: rgba(26, 26, 46, 0.045);
-  --grid-size: 28px;
-  --transition: 0.15s ease;
+
+  --shadow-brutal-lg: 6px 6px 0 var(--color-ink);
+  --shadow-brutal: 3px 3px 0 var(--color-ink);
+  --shadow-brutal-sm: 2px 2px 0 var(--color-ink);
 }
 
-/* --- Dark Mode --- */
+/* Dark mode theme variables */
 html.dark {
-  --paper: #1C1C28;
-  --paper-alt: #24243A;
-  --ink: #E8E6E3;
-  --ink-soft: #BEB9B0;
-  --ink-muted: #9CA3AF;
-  --code-bg: #12121E;
-  --code-text: #D4D4D8;
-  --grid-color: rgba(232, 230, 227, 0.03);
-  --shadow-heavy: 6px 6px 0 #0D0D14;
-  --shadow-medium: 3px 3px 0 #0D0D14;
-  --shadow-light: 2px 2px 0 #0D0D14;
+  --color-paper: #1C1C28;
+  --color-paper-alt: #24243A;
+  --color-ink: #E8E6E3;
+  --color-ink-soft: #BEB9B0;
+  --color-ink-muted: #9CA3AF;
+  --color-code-bg: #12121E;
+  --color-code-text: #D4D4D8;
+  --shadow-brutal-lg: 6px 6px 0 #0D0D14;
+  --shadow-brutal: 3px 3px 0 #0D0D14;
+  --shadow-brutal-sm: 2px 2px 0 #0D0D14;
 }
 
-/* --- Reset --- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/* --- Page --- */
+/* Notebook Grid Background */
 body {
   font-family: var(--font-body);
-  background-color: var(--paper);
-  color: var(--ink);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding: 18px 14px;
-  /* Subtle ruled notebook grid */
   background-image:
-    repeating-linear-gradient(0deg, var(--grid-color) 0, var(--grid-color) 1px, transparent 1px, transparent var(--grid-size)),
-    repeating-linear-gradient(90deg, var(--grid-color) 0, var(--grid-color) 1px, transparent 1px, transparent var(--grid-size));
-  background-size: var(--grid-size) var(--grid-size);
+    repeating-linear-gradient(0deg, rgba(26, 26, 46, 0.045) 0, rgba(26, 26, 46, 0.045) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(26, 26, 46, 0.045) 0, rgba(26, 26, 46, 0.045) 1px, transparent 1px, transparent 28px);
+  background-size: 28px 28px;
 }
 
-/* --- Chat Card Shell --- */
-.chat-app {
-  width: 100%;
-  max-width: 800px;
-  height: 92vh;
-  height: 92dvh;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--paper);
-  border: var(--border-w) solid var(--ink);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-heavy);
-  position: relative;
+html.dark body {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(232, 230, 227, 0.03) 0, rgba(232, 230, 227, 0.03) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(232, 230, 227, 0.03) 0, rgba(232, 230, 227, 0.03) 1px, transparent 1px, transparent 28px);
 }
 
-/* ==========================================================================
-   Header
-   ========================================================================== */
+/* Progress stripe animation */
+@keyframes stripe-scroll {
+  0% {
+    background-position: 0 0;
+  }
 
-.chat-header {
-  background-color: var(--yellow);
-  border-bottom: var(--border-w-thick) solid var(--ink);
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
+  100% {
+    background-position: 24px 0;
+  }
 }
 
-.header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 18px 10px 20px;
-  gap: 10px;
-}
-
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.header-brand h1 {
-  font-family: var(--font-body);
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--ink);
-  letter-spacing: -0.3px;
-}
-
-/* WebGPU status chip */
-.status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
-  border: 1.5px solid var(--ink);
-  background-color: var(--paper);
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-.status-chip .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--teal);
-  flex-shrink: 0;
-}
-
-.status-chip.error {
-  background-color: var(--danger);
-  color: #fff;
-  border-color: var(--danger);
-}
-
-.status-chip.error .dot {
-  background-color: #fff;
-}
-
-/* Header icon buttons */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.icon-btn {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--ink);
-  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.icon-btn:hover {
-  box-shadow: var(--shadow-light);
-  transform: translate(-1px, -1px);
-}
-
-.icon-btn:active {
-  box-shadow: none;
-  transform: translate(1px, 1px);
-}
-
-.icon-btn svg {
-  width: 16px;
-  height: 16px;
-  stroke: currentColor;
-  stroke-width: 2;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* Speed badge */
-.speed-badge {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  background: var(--paper);
-  border: 1.5px solid var(--ink);
-  color: var(--teal);
-  white-space: nowrap;
-}
-
-/* --- Progress Bar --- */
-.progress-bar-track {
-  width: 100%;
-  height: 5px;
-  background-color: var(--paper-alt);
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.progress-bar-fill {
-  width: 0%;
-  height: 100%;
-  background-color: var(--ink);
-  transition: width 0.25s ease;
-  position: relative;
-}
-
-/* Diagonal stripe animation during active download */
-.progress-bar-fill.downloading {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--ink),
-    var(--ink) 6px,
-    var(--yellow) 6px,
-    var(--yellow) 12px
-  );
+.downloading-stripes {
+  background-image: repeating-linear-gradient(-45deg,
+      var(--color-ink),
+      var(--color-ink) 6px,
+      var(--color-accent-amber) 6px,
+      var(--color-accent-amber) 12px);
   background-size: 24px 24px;
   animation: stripe-scroll 0.6s linear infinite;
 }
 
-@keyframes stripe-scroll {
-  0% { background-position: 0 0; }
-  100% { background-position: 24px 0; }
-}
-
-/* Status text — sits below progress, subtle */
-.status-text {
-  font-size: 0.75rem;
-  color: var(--ink-muted);
-  padding: 4px 20px 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-shrink: 0;
-}
-
-/* ==========================================================================
-   Chat Messages
-   ========================================================================== */
-
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 22px 20px 16px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  scroll-behavior: smooth;
-  overscroll-behavior: contain;
-}
-
 /* Custom scrollbar */
-.chat-messages::-webkit-scrollbar {
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-muted) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
-.chat-messages::-webkit-scrollbar-track {
+
+.custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
-.chat-messages::-webkit-scrollbar-thumb {
-  background: var(--ink-muted);
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-ink-muted);
   border-radius: 3px;
 }
 
-/* --- Message layout --- */
-.message {
-  display: flex;
-  max-width: 82%;
-  animation: msg-in 0.2s ease-out;
+/* Native dialog backdrop */
+dialog::backdrop {
+  background: rgba(26, 26, 46, 0.45);
 }
 
-@keyframes msg-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+dialog:not([open]) {
+  display: none;
 }
 
-.message.user {
-  align-self: flex-end;
-}
-
-.message.assistant {
-  align-self: flex-start;
-  max-width: 88%;
-}
-
-/* --- Bubbles --- */
-.bubble {
-  padding: 12px 16px;
-  font-size: 0.92rem;
-  line-height: 1.65;
-  word-break: break-word;
-}
-
-.message.user .bubble {
-  background-color: var(--teal);
-  color: #fff;
-  border-radius: 14px 14px 4px 14px;
-}
-
-.message.assistant .bubble {
-  background-color: var(--paper);
-  color: var(--ink);
-  border: 1.5px solid var(--ink);
-  border-radius: 14px 14px 14px 4px;
-}
-
-/* Bold / italic in assistant messages */
-.message.assistant .bubble strong {
-  font-weight: 600;
-}
-
-/* --- Welcome Empty State --- */
-.welcome-card {
+/* Model Library modal scrolling */
+#modelLibraryDialog[open] {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 48px 24px 32px;
-  flex: 1;
-  gap: 12px;
 }
 
-.welcome-card h2 {
-  font-family: var(--font-hand);
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--ink);
-  letter-spacing: 0.5px;
-}
-
-.welcome-card .welcome-sub {
-  font-size: 0.88rem;
-  color: var(--ink-muted);
-  max-width: 380px;
-  line-height: 1.5;
-}
-
-.welcome-card .welcome-status {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--ink-muted);
-  margin-top: 4px;
-}
-
-.suggestion-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  margin-top: 16px;
-}
-
-.suggestion-chip {
-  font-family: var(--font-body);
-  font-size: 0.82rem;
-  padding: 8px 16px;
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius-pill);
-  background: var(--paper);
-  color: var(--ink);
-  cursor: pointer;
-  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
-}
-
-.suggestion-chip:hover {
-  background: var(--yellow);
-  box-shadow: var(--shadow-light);
-  transform: translate(-1px, -1px);
-}
-
-.suggestion-chip:active {
-  box-shadow: none;
-  transform: translate(1px, 1px);
-}
-
-/* ==========================================================================
-   Code Blocks (inside assistant bubbles)
-   ========================================================================== */
-
-.code-block {
-  margin: 10px 0 6px;
-  background-color: var(--code-bg);
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-
-.code-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 12px;
-  background-color: var(--code-bg);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 0.72rem;
-  font-family: var(--font-mono);
-  color: var(--ink-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.copy-code-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: var(--code-text);
-  padding: 2px 10px;
-  border-radius: var(--radius-pill);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  cursor: pointer;
-  transition: border-color var(--transition), color var(--transition);
-}
-
-.copy-code-btn:hover {
-  border-color: var(--teal);
-  color: var(--teal);
-}
-
-.code-block pre {
-  padding: 12px 14px;
-  overflow-x: auto;
-  font-family: var(--font-mono);
-  font-size: 0.84rem;
-  line-height: 1.55;
-  color: var(--code-text);
-}
-
-code.inline-code {
-  background-color: var(--paper-alt);
-  border: 1px solid var(--ink-muted);
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-}
-
-/* ==========================================================================
-   Model Pill Bar
-   ========================================================================== */
-
-.model-bar {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 10px 18px;
-  border-top: 1.5px solid var(--ink);
-  overflow-x: auto;
-  flex-shrink: 0;
+#modelCardGrid {
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.model-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.model-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 500;
-  padding: 6px 14px;
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius-pill);
-  background: var(--paper);
-  color: var(--ink);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
-  flex-shrink: 0;
-}
-
-.model-pill::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-/* Provider brand dots */
-.model-pill[data-provider="meta"]::before { background-color: #1877F2; }
-.model-pill[data-provider="google"]::before { background-color: #EA4335; }
-.model-pill[data-provider="alibaba"]::before { background-color: #FF6A00; }
-.model-pill[data-provider="microsoft"]::before { background-color: #00A4EF; }
-.model-pill[data-provider="mistral"]::before { background-color: #7C3AED; }
-.model-pill[data-provider="huggingface"]::before { background-color: #FFD21E; }
-.model-pill[data-provider="allenai"]::before { background-color: #00C49A; }
-
-.model-pill:hover {
-  box-shadow: var(--shadow-light);
-  transform: translate(-1px, -1px);
-}
-
-.model-pill:active {
-  box-shadow: none;
-  transform: translate(1px, 1px);
-}
-
-.model-pill.active {
-  background-color: var(--yellow);
-  box-shadow: var(--shadow-light);
-  font-weight: 600;
-}
-
-/* Variant sub-row — shown when a provider pill is expanded */
-.model-variants {
-  display: none;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 6px 18px 10px;
-  border-top: 1px dashed var(--ink-muted);
-  flex-shrink: 0;
-}
-
-.model-variants.open {
-  display: flex;
-}
-
-.variant-pill {
-  font-family: var(--font-body);
-  font-size: 0.74rem;
-  font-weight: 500;
-  padding: 4px 12px;
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius-pill);
-  background: var(--paper);
-  color: var(--ink);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
-}
-
-.variant-pill:hover {
-  box-shadow: var(--shadow-light);
-  transform: translate(-1px, -1px);
-}
-
-.variant-pill:active {
-  box-shadow: none;
-  transform: translate(1px, 1px);
-}
-
-.variant-pill.active {
-  background-color: var(--teal);
-  color: #fff;
-}
-
-.variant-size {
-  font-size: 0.68rem;
-  color: var(--ink-muted);
-  margin-left: 2px;
-}
-
-/* ==========================================================================
-   Footer / Input
-   ========================================================================== */
-
-.chat-footer {
-  padding: 12px 18px 14px;
-  border-top: var(--border-w) solid var(--ink);
-  background: var(--paper);
-  flex-shrink: 0;
-}
-
-.chat-form {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-}
-
-.chat-form textarea {
-  flex: 1;
-  padding: 11px 16px;
-  background-color: var(--paper);
-  border: var(--border-w) solid var(--ink);
-  border-radius: var(--radius);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 0.92rem;
-  resize: none;
-  max-height: 140px;
-  line-height: 1.45;
-  outline: none;
-  transition: border-color var(--transition), box-shadow var(--transition);
-}
-
-.chat-form textarea::placeholder {
-  color: var(--ink-muted);
-}
-
-.chat-form textarea:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 1px var(--teal);
-}
-
-/* Round send button */
-.btn-send {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: var(--border-w) solid var(--ink);
-  background: var(--teal);
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.btn-send:hover:not(:disabled) {
-  background: var(--teal-hover);
-  box-shadow: var(--shadow-light);
-  transform: translate(-1px, -1px);
-}
-
-.btn-send:active:not(:disabled) {
-  box-shadow: none;
-  transform: translate(1px, 1px);
-}
-
-.btn-send:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.btn-send svg {
-  width: 18px;
-  height: 18px;
-  fill: #fff;
-  stroke: none;
-}
-
-/* Round stop button */
-.btn-stop {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: var(--border-w) solid var(--ink);
-  background: var(--danger);
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.btn-stop:hover {
-  background: var(--danger-hover);
-  box-shadow: var(--shadow-light);
-  transform: translate(-1px, -1px);
-}
-
-.btn-stop:active {
-  box-shadow: none;
-  transform: translate(1px, 1px);
-}
-
-.btn-stop svg {
-  width: 14px;
-  height: 14px;
-  fill: #fff;
-  stroke: none;
-}
-
-/* ==========================================================================
-   System Prompt Dialog
-   ========================================================================== */
-
-dialog.system-dialog {
-  position: fixed;
-  border: var(--border-w) solid var(--ink);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-heavy);
-  background: var(--paper);
-  color: var(--ink);
-  padding: 0;
-  width: 90%;
-  max-width: 480px;
-  overflow: hidden;
-}
-
-dialog.system-dialog::backdrop {
-  background: rgba(26, 26, 46, 0.4);
-}
-
-.dialog-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 18px;
-  background: var(--yellow);
-  border-bottom: var(--border-w) solid var(--ink);
-}
-
-.dialog-header h3 {
-  font-family: var(--font-hand);
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.dialog-close {
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-radius: 50%;
-  cursor: pointer;
-  color: var(--ink);
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1;
-  transition: box-shadow var(--transition), transform var(--transition);
-  padding: 0;
-}
-
-.dialog-close:hover {
-  box-shadow: var(--shadow-light);
-  transform: translate(-1px, -1px);
-}
-
-.dialog-body {
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.dialog-body label {
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--ink-muted);
-}
-
-.dialog-body textarea {
-  width: 100%;
-  min-height: 80px;
-  padding: 10px 14px;
-  background: var(--paper-alt);
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius-sm);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 0.88rem;
-  line-height: 1.5;
-  resize: vertical;
-  outline: none;
-  transition: border-color var(--transition);
-}
-
-.dialog-body textarea:focus {
-  border-color: var(--teal);
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding: 0 18px 16px;
-}
-
-.btn-save {
-  font-family: var(--font-body);
-  font-size: 0.84rem;
-  font-weight: 600;
-  padding: 8px 20px;
-  border: var(--border-w) solid var(--ink);
-  border-radius: var(--radius-pill);
-  background: var(--teal);
-  color: #fff;
-  cursor: pointer;
-  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
-}
-
-.btn-save:hover {
-  background: var(--teal-hover);
-  box-shadow: var(--shadow-light);
-  transform: translate(-1px, -1px);
-}
-
-.btn-save:active {
-  box-shadow: none;
-  transform: translate(1px, 1px);
-}
-
-/* ==========================================================================
-   Responsive
-   ========================================================================== */
-
-@media (max-width: 640px) {
-  body {
-    padding: 0;
-    background-image: none;
-  }
-
-  .chat-app {
-    height: 100vh;
-    height: 100dvh;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
-  }
-
-  .chat-header {
-    border-radius: 0;
-  }
-
-  .header-top {
-    padding: 10px 14px 8px 16px;
-  }
-
-  .chat-messages {
-    padding: 16px 14px 12px 16px;
-  }
-
-  .message {
-    max-width: 90%;
-  }
-
-  .message.assistant {
-    max-width: 94%;
-  }
-
-  .welcome-card h2 {
-    font-size: 1.8rem;
-  }
-
-  .welcome-card {
-    padding: 32px 16px 24px;
-  }
-
-  .model-bar {
-    padding: 8px 14px;
-  }
-
-  .chat-footer {
-    padding: 10px 14px 12px;
-  }
-
-  .icon-btn {
-    width: 30px;
-    height: 30px;
-  }
-
-  .icon-btn svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  dialog.system-dialog {
-    width: 96%;
-  }
 }

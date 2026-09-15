@@ -68,4 +68,42 @@ WebLLM requires **WebGPU** with hardware acceleration:
 - **Live Speed Indicator**: Monitor tokens per second in real time.
 - **Markdown Code Formatting**: Syntax-styled blocks with 1-click copy.
 - **Custom Instructions**: Change the system prompt easily via Prompt Settings.
-- **Console Test Logs**: All key lifecycle events are logged to the browser console (`[WebLLM Test]`) for flow inspection.
+- **Console Test Logs**: All key lifecycle events are logged to the browser console (`[WebLLM]`) for flow inspection.
+
+---
+
+## Troubleshooting
+
+### `Unable to find a compatible GPU`
+
+**Full error:**
+```
+Unable to find a compatible GPU. This issue might be because your computer doesn't have a GPU,
+or your system settings are not configured properly.
+```
+
+This means the browser can see the WebGPU API but can't get a usable GPU adapter. Common fixes:
+
+#### 1. Enable WebGPU in Chrome flags
+Go to `chrome://flags`, search for **WebGPU**, set it to **Enabled** (not "Default" — on some systems "Default" means disabled). Restart Chrome.
+
+#### 2. Turn on hardware acceleration
+Go to `chrome://settings/system` → enable **"Use hardware acceleration when available"**. Restart Chrome.
+
+#### 3. Check GPU status
+Go to `chrome://gpu` and look for the **WebGPU** row. If it says "Disabled" or "Software only", your GPU driver or browser config is the problem.
+
+#### 4. Linux with NVIDIA
+Launch Chrome with Vulkan and unsafe WebGPU flags:
+```bash
+google-chrome --enable-features=Vulkan --enable-unsafe-webgpu
+```
+
+For AMD/Intel on Linux, make sure Mesa drivers are up to date (`mesa 23.1+` recommended).
+
+#### 5. Firefox
+WebGPU is only available in **Firefox Nightly**. Go to `about:config`, search for `dom.webgpu.enabled`, and set it to `true`.
+
+#### 6. Verify WebGPU works
+Open [webgpureport.org](https://webgpureport.org/) in the same browser. If that page can't detect a GPU adapter, the issue is your browser/driver setup, not this app.
+
