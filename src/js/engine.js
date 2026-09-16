@@ -109,19 +109,26 @@ export async function deleteModelCache(modelId) {
 export async function loadEngine(modelId, progressCallback, hasF16) {
   const effectiveId = (hasF16 !== undefined) ? resolveModelId(modelId, hasF16) : modelId;
 
-  if (!engine) {
-    const worker = new Worker(new URL('../worker.js', import.meta.url), {
-      type: 'module',
-    });
-    engine = await CreateWebWorkerMLCEngine(worker, effectiveId, {
-      initProgressCallback: progressCallback,
-    });
-  } else {
-    await engine.reload(effectiveId, {
-      initProgressCallback: progressCallback,
-    });
+  try {
+    if (!engine) {
+      const worker = new Worker(new URL('../worker.js', import.meta.url), {
+        type: 'module',
+      });
+      engine = await CreateWebWorkerMLCEngine(worker, effectiveId, {
+        initProgressCallback: progressCallback,
+      });
+    } else {
+      if (progressCallback && typeof engine.setInitProgressCallback === 'function') {
+        engine.setInitProgressCallback(progressCallback);
+      }
+      await engine.reload(effectiveId);
+    }
+    return engine;
+  } catch (err) {
+    // Reset engine reference on error so subsequent attempts spawn a fresh worker
+    engine = null;
+    throw err;
   }
-  return engine;
 }
 
 export function getEngineInstance() {

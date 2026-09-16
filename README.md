@@ -2,6 +2,16 @@
 
 A clean web application that runs Large Language Models locally inside your web browser. Everything runs on your machine using your graphics hardware (WebGPU)—no remote servers, no API keys, and your data never leaves your device.
 
+<p align="center">
+  <a href="demo.mp4">
+    <img src="demo.gif" alt="Local Browser AI Chat Demo" width="100%" />
+  </a>
+</p>
+
+<p align="center">
+  <em>Running 100% offline via WebGPU &mdash; <a href="demo.mp4">▶️ Watch full demo video (demo.mp4)</a></em>
+</p>
+
 ---
 
 ## How It Works
